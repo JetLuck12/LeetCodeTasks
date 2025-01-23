@@ -1,40 +1,55 @@
 ﻿
 #include <iostream>
 #include <map>
-#include <queue>
 #include <vector>
 
 using namespace std;
 
 class Solution {
 public:
-    long long gridGame(vector<vector<int>>& grid) {
-        long long up_sum = 0;
-        for (int i = 1; i < grid[0].size(); i++)
-        {
-            up_sum += grid[0][i];
+    int countServers(vector<vector<int>>& grid) {
+        int count = 0;
+        for (int y = 0; y < grid.size(); y++) {
+            for (int x = 0; x < grid[0].size(); x++) {
+                if (grid[y][x] == 0)
+                {
+                    continue;
+                }
+                vector<pair<int, int>> connection{ {y,x} };
+                for (auto point : connection) {
+                    for (int i = point.first + 1; i < grid.size(); i++)
+                    {
+
+                        if (grid[i][point.second] == 1)
+                        {
+                            grid[i][point.second] = 0;
+                            connection.emplace_back(i, point.second);
+                        }
+                    }
+
+                    for (int j = point.second + 1; j < grid[0].size(); j++)
+                    {
+                        if (grid[point.first][j] == 1)
+                        {
+                            grid[point.first][j] = 0;
+                            connection.emplace_back(point.first, j);
+                        }
+                    }
+                }
+                if (connection.size() > 1)
+                {
+                    count += connection.size();
+                }
+            }
+
         }
-        long long bot_sum = 0;
-        long long last_up_sum = up_sum;
-        for (int i = 1; i < grid[0].size()-1;i++)
-        {
-            last_up_sum = up_sum;
-            bot_sum += grid[1][i - 1];
-            up_sum -= grid[0][i];
-	        if (bot_sum > up_sum)
-	        {
-                return min(last_up_sum, bot_sum);
-	        }
-            
-        }
-        bot_sum += grid[1][grid[0].size() - 2];
-        return min(up_sum, bot_sum);
+        return count;
     }
 };
 int main()
 {
     Solution sol;
-    std::vector<std::vector<int>> grid{ {2, 5, 4},{1, 5, 1} };
-    long long res = sol.gridGame(grid);
+    std::vector<std::vector<int>> grid{ {1, 0},{0, 1} };
+    long long res = sol.countServers(grid);
     std::cout << res;
 }
