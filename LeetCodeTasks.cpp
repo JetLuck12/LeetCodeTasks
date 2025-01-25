@@ -16,7 +16,7 @@ public:
 
         vector<int> parent(n);
         iota(parent.begin(), parent.end(), 0);
-        
+
         function<int(int)> find = [&](int x) {
             if (parent[x] != x) parent[x] = find(parent[x]);
             return parent[x];
@@ -28,11 +28,15 @@ public:
             if (rootX != rootY) parent[rootX] = rootY;
             };
 
+        vector<pair<int, int>> sortedNums;
         for (int i = 0; i < n; ++i) {
-            for (int j = i + 1; j < n; ++j) {
-                if (abs(nums[i] - nums[j]) <= limit) {
-                    unite(i, j);
-                }
+            sortedNums.emplace_back(nums[i], i);
+        }
+        sort(sortedNums.begin(), sortedNums.end());
+
+        for (int i = 1; i < n; ++i) {
+            if (abs(sortedNums[i].first - sortedNums[i - 1].first) <= limit) {
+                unite(sortedNums[i].second, sortedNums[i - 1].second);
             }
         }
 
