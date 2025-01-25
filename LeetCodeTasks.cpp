@@ -1,72 +1,78 @@
 ﻿
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <map>
+#include <numeric>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
 class Solution {
 public:
-    int countServers(vector<vector<int>>& grid) {
-        int count = 0;
-        for (int y = 0; y < grid.size(); y++) {
-            for (int x = 0; x < grid[0].size(); x++) {
-                if (grid[y][x] == 0)
-                {
-                    continue;
-                }
-                grid[y][x] = 0;
-                vector<pair<int, int>> connection{ {y,x} };
-                for (auto index = 0; index < connection.size(); index++) {
-                    std::pair<int, int> point{ connection[index] };
-                    for (int i = 0; i < grid.size(); i++)
-                    {
-                        if (grid[i][point.second] == 1)
-                        {
-                            grid[i][point.second] = 0;
-                            connection.emplace_back(i, point.second);
-                        }
-                    }
+    vector<int> lexicographicallySmallestArray(vector<int>& nums, int limit) {
+        int n = nums.size();
 
-                    for (int j = 0; j < grid[0].size(); j++)
-                    {
-                        if (grid[point.first][j] == 1)
-                        {
-                            grid[point.first][j] = 0;
-                            connection.emplace_back(point.first, j);
-                        }
-                    }
-                }
-                if (connection.size() > 1)
-                {
-                    count += connection.size();
+        vector<int> parent(n);
+        iota(parent.begin(), parent.end(), 0);
+        
+        function<int(int)> find = [&](int x) {
+            if (parent[x] != x) parent[x] = find(parent[x]);
+            return parent[x];
+            };
+
+        auto unite = [&](int x, int y) {
+            int rootX = find(x);
+            int rootY = find(y);
+            if (rootX != rootY) parent[rootX] = rootY;
+            };
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                if (abs(nums[i] - nums[j]) <= limit) {
+                    unite(i, j);
                 }
             }
-
         }
-        return count;
+
+        unordered_map<int, vector<int>> groups;
+        for (int i = 0; i < n; ++i) {
+            groups[find(i)].push_back(i);
+        }
+
+        vector<int> result = nums;
+        for (auto& [_, indices] : groups) {
+            vector<int> values;
+            for (int idx : indices) {
+                values.push_back(nums[idx]);
+            }
+            sort(values.begin(), values.end());
+            sort(indices.begin(), indices.end());
+            for (int i = 0; i < indices.size(); ++i) {
+                result[indices[i]] = values[i];
+            }
+        }
+
+        return result;
     }
 };
 
-std::vector<std::vector<int>> process_input(std::string& input)
+std::vector<int> process_input(std::string& input)
 {
-    std::vector<std::vector<int>> res;
-    std::vector<int> line;
+    std::vector<int> res;
+    res.push_back(atoi(&input[1]));
     for (int i = 1; i < input.size() - 1; i++)
     {
-        if (input[i] == '[' || input[i] == ',')
+        while (i < input.size() - 1 && input[i] != ',')
         {
-            continue;
+            i++;
         }
-        if (input[i] == ']')
+        if (i >= input.size() - 1)
         {
-            res.push_back(line);
-            line.clear();
+            break;
         }
-        else
-        {
-            line.push_back(atoi(&input[i]));
-        }
+        res.push_back(atoi(&input[i+1]));
     }
     return res;
 }
@@ -75,8 +81,12 @@ std::vector<std::vector<int>> process_input(std::string& input)
 int main()
 {
     Solution sol;
-    std::string input{ "[[1,0],[1,1]]" };
-    std::vector<std::vector<int>> grid = process_input(input);
-    long long res = sol.countServers(grid);
-    std::cout << res;
+    std::string input{ "[1,60,34,84,62,56,39,76,49,38]" };
+	std::vector<int> grid = process_input(input);
+    int limit = 4;
+    std::vector<int> res = sol.lexicographicallySmallestArray(grid, limit);
+    for (auto x: res)
+    {
+        std::cout << x << " ";
+    }
 }
