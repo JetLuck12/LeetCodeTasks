@@ -7,44 +7,50 @@ using namespace std;
 
 class Solution {
 public:
-    int countServers(vector<vector<int>>& grid) {
-        int count = 0;
-        for (int y = 0; y < grid.size(); y++) {
-            for (int x = 0; x < grid[0].size(); x++) {
-                if (grid[y][x] == 0)
-                {
-                    continue;
-                }
-                grid[y][x] = 0;
-                vector<pair<int, int>> connection{ {y,x} };
-                for (auto index = 0; index < connection.size(); index++) {
-                    std::pair<int, int> point{ connection[index] };
-                    for (int i = 0; i < grid.size(); i++)
-                    {
-                        if (grid[i][point.second] == 1)
-                        {
-                            grid[i][point.second] = 0;
-                            connection.emplace_back(i, point.second);
-                        }
-                    }
-
-                    for (int j = 0; j < grid[0].size(); j++)
-                    {
-                        if (grid[point.first][j] == 1)
-                        {
-                            grid[point.first][j] = 0;
-                            connection.emplace_back(point.first, j);
-                        }
-                    }
-                }
-                if (connection.size() > 1)
-                {
-                    count += connection.size();
-                }
+    int maximumInvitations(vector<int>& favorite) {
+        vector<int> visited(favorite.size(), 0);
+        vector<int> max_vec;
+        for (int i = 0; i < favorite.size(); i++)
+        {
+            if (visited[i] == 2)
+            {
+	            continue;
             }
-
+            vector<int> new_vec{i};
+            visited[i] = 1;
+            int new_point = i;
+            while(true)
+            {
+                new_point = favorite[new_point];
+	            if (visited[new_point] == 2)
+	            {
+                    for (int j : new_vec)
+                    {
+                        visited[j] = 2;
+                    }
+                    break;
+	            }
+                if(visited[new_point] == 1)
+                {
+                    for (int j = 0; j < new_vec.size(); j++)
+                    {
+                        if (new_vec[j] == new_point)
+                        {
+                            new_vec.erase(new_vec.begin(), new_vec.begin() + j);
+                            break;
+                        }
+                        visited[j] = 2;
+                    }
+                    break;
+                }
+                new_vec.push_back(new_point);
+            }
+            if (max_vec.size() < new_vec.size())
+            {
+                max_vec = new_vec;
+            }
         }
-        return count;
+        return max_vec.size();
     }
 };
 
