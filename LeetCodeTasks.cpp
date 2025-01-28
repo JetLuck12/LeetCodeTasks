@@ -1,50 +1,71 @@
 ﻿
 #include <iostream>
 #include <map>
+#include <queue>
+#include <set>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
+void reachebles(vector<vector<bool>>& isReacheble, queue<int>& queue, vector<int>& visited)
+{
+    int point = queue.front();
+    queue.pop();
+    if (visited[point])
+    {
+	    return;
+    }
+	for (int i = 0; i < isReacheble.size(); i++)
+	{
+		if (isReacheble[i][point])
+		{
+            queue.push(i);
+            for (int j = 0; j < isReacheble.size(); j++)
+            {
+                isReacheble[i][j] = isReacheble[point][j] || isReacheble[i][j];
+            }
+		}
+	}
+    visited[point] = true;
+}
+
 class Solution {
 public:
-    int countServers(vector<vector<int>>& grid) {
-        int count = 0;
-        for (int y = 0; y < grid.size(); y++) {
-            for (int x = 0; x < grid[0].size(); x++) {
-                if (grid[y][x] == 0)
-                {
-                    continue;
-                }
-                grid[y][x] = 0;
-                vector<pair<int, int>> connection{ {y,x} };
-                for (auto index = 0; index < connection.size(); index++) {
-                    std::pair<int, int> point{ connection[index] };
-                    for (int i = 0; i < grid.size(); i++)
-                    {
-                        if (grid[i][point.second] == 1)
-                        {
-                            grid[i][point.second] = 0;
-                            connection.emplace_back(i, point.second);
-                        }
-                    }
-
-                    for (int j = 0; j < grid[0].size(); j++)
-                    {
-                        if (grid[point.first][j] == 1)
-                        {
-                            grid[point.first][j] = 0;
-                            connection.emplace_back(point.first, j);
-                        }
-                    }
-                }
-                if (connection.size() > 1)
-                {
-                    count += connection.size();
-                }
-            }
-
+    vector<bool> checkIfPrerequisite(int numCourses, vector<vector<int>>& prerequisites, vector<vector<int>>& queries) {
+        vector<vector<bool>> isReacheble(numCourses, vector<bool>(numCourses, false));
+        vector<int> visited(numCourses, false);
+        set<int> leafs;
+        for (int i = 0; i < numCourses; i++)
+        {
+            leafs.insert(i);
         }
-        return count;
+        for (auto& x: prerequisites)
+        {
+            isReacheble[x[0]][x[1]] = true;
+            if (leafs.contains(x[0]))
+            {
+                leafs.erase(x[0]);
+            }
+        }
+        queue<int> queue;
+        for (auto& x: leafs)
+        {
+            queue.push(x);
+        }
+        while (!queue.empty())
+        {
+            reachebles(isReacheble, queue, visited);
+        }
+        vector<bool> res(queries.size(), false);
+        for (int x = 0; x < queries.size(); x++)
+        {
+	        if (isReacheble[queries[x][0]][queries[x][1]])
+	        {
+                res[x] = true;
+	        }
+        }
+        return res;
     }
 };
 
@@ -52,21 +73,34 @@ std::vector<std::vector<int>> process_input(std::string& input)
 {
     std::vector<std::vector<int>> res;
     std::vector<int> line;
-    for (int i = 1; i < input.size() - 1; i++)
+    int i = 2;
+    line.push_back(atoi(&input[2]));
+    while (i < input.size()-1)
     {
-        if (input[i] == '[' || input[i] == ',')
+	    while (input[i] != ',' && input[i] != ']' && input[i] != '[')
+	    {
+            i++;
+	    }
+        if (input[i] == '[')
         {
-            continue;
+            line.push_back(atoi(&input[i + 1]));
         }
-        if (input[i] == ']')
+        else if (input[i] == ',')
         {
-            res.push_back(line);
-            line.clear();
+            if (input[i + 1] == '[')
+            {
+                i++;
+                continue;
+            }
+            line.push_back(atoi(&input[i+1]));
         }
         else
         {
-            line.push_back(atoi(&input[i]));
+            res.push_back(line);
+            line.clear();
+            
         }
+        i++;
     }
     return res;
 }
@@ -75,8 +109,12 @@ std::vector<std::vector<int>> process_input(std::string& input)
 int main()
 {
     Solution sol;
-    std::string input{ "[[1,0],[1,1]]" };
-    std::vector<std::vector<int>> grid = process_input(input);
-    long long res = sol.countServers(grid);
-    std::cout << res;
+    std::string input1{ "[[0,1],[1,2],[2,3],[3,4]]" };
+    std::string input2{ "[[0,4],[4,0],[1,3],[3,0]]" };
+	int num = 5;
+    vector<vector<int>> prereq = process_input(input1);
+    vector<vector<int>> queries = process_input(input2);
+    //std::vector<std::vector<int>> grid = process_input(input);
+    auto res = sol.checkIfPrerequisite(num, prereq,queries);
+    //std::cout << res;
 }
