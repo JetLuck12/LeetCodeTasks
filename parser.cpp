@@ -1,10 +1,8 @@
 #include <string>
 #include <vector>
+#include "parser.h"
 
-class Parser final
-{
-public:
-	static std::vector<int> process_vector(std::string& input)
+std::vector<int> Parser::process_vector(std::string& input)
     {
         std::vector<int> res;
         res.push_back(atoi(&input[1]));
@@ -22,4 +20,8 @@ public:
         }
         return res;
     }
-};
+
+std::vector<std::vector<int>> Parser::process_vector_vector(std::string& input)
+{
+	
+}
