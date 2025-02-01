@@ -11,13 +11,22 @@ using namespace std;
 
 class Solution {
 public:
-
+    bool isArraySpecial(vector<int>& nums) {
+        for (int i = 0; i < nums.size()-1; i++)
+        {
+	        if (((nums[i]+nums[i+1])&1) == 0)
+	        {
+                return false;
+	        }
+        }
+        return true;
+    }
 };
 
 int main()
 {
     Solution sol;
-    std::string input{ "[[0,2,1,0],[4,0,0,3],[1,0,0,4],[0,3,2,0]]" };
-    std::vector<std::vector<int>> grid = Parser::process_vector_vector(input);
-    //long long res = sol.findMaxFish(grid);
+    std::string input{ "[2,1,4]" };
+    std::vector<int> grid = Parser::process_vector(input);
+    bool res = sol.isArraySpecial(grid);
 }
