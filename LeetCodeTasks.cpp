@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <queue>
+#include <set>
 #include <vector>
 
 #include "parser.h"
@@ -9,15 +10,40 @@
 
 using namespace std;
 
-class Solution {
+class NumberContainers {
 public:
+    NumberContainers() {}
 
+    void change(int index, int number) {
+        if (inds.contains(index)) {
+            nums[inds[index]].erase(index);
+            inds[index] = number;
+            nums[number].insert(index);
+        }
+        else {
+            inds[index] = number;
+            nums[number].insert(index);
+        }
+    }
+
+    int find(int number) {
+        if (nums.contains(number)) {
+            if (nums[number].size() > 0) {
+                return *nums[number].begin();
+            }
+            else {
+                -1;
+            }
+        }
+        return -1;
+    }
+private:
+    map<int, set<int>> nums{};
+    map<int, int> inds{};
 };
+
 
 int main()
 {
-    Solution sol;
-    std::string input{ "[[0,2,1,0],[4,0,0,3],[1,0,0,4],[0,3,2,0]]" };
-    std::vector<std::vector<int>> grid = Parser::process_vector_vector(input);
-    //long long res = sol.findMaxFish(grid);
+    return 0;
 }
