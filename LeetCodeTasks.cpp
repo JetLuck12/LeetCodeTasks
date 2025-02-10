@@ -1,5 +1,6 @@
 ﻿
 #include <iostream>
+#include <locale>
 #include <map>
 #include <queue>
 #include <vector>
@@ -11,26 +12,22 @@ using namespace std;
 
 class Solution {
 public:
-    long long countBadPairs(vector<int>& nums) {
-        map<int, int> subs;
-        long long res = 0;
-        for (int i = 0; i < nums.size(); i++)
-        {
-            int sub = i - nums[i];
-	        if (subs.contains(sub))
-	        {
-                subs[sub]++;
-	        }
-            else
+    string clearDigits(string s) {
+        string res = s;
+        for (int i = 0; i < res.size(); i++) {
+            if (std::isdigit(res[i]))
             {
-                subs[sub] = 1;
+	            for (int j = i; j >= 0; j--)
+	            {
+		            if (!isdigit(res[j]))
+		            {
+                        res.erase(i,1);
+                        res.erase(j,1);
+                        i -= 2;
+                        break;
+		            }
+	            }
             }
-        }
-        int left = nums.size();
-        for (auto& [sub, count] : subs)
-        {
-            left -= count;
-            res += count * left;
         }
         return res;
     }
@@ -39,7 +36,6 @@ public:
 int main()
 {
     Solution sol;
-    std::string input{ "[4,1,3,3]" };
-    std::vector<int> grid = Parser::process_vector(input);
-    long long res = sol.countBadPairs(grid);
+    std::string input{ "cb34" };
+    string res = sol.clearDigits(input);
 }
