@@ -9,9 +9,25 @@
 
 using namespace std;
 
-class Solution {
+class ProductOfNumbers {
 public:
+    ProductOfNumbers() {
 
+    }
+
+    void add(int num) {
+        for (auto& x: prods)
+        {
+            x *= num;
+        }
+        prods.push_back(num);
+    }
+
+    int getProduct(int k) {
+        return prods[prods.size() - k];
+    }
+private:
+    vector<int> prods{};
 };
 
 int main()
