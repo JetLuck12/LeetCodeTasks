@@ -16,15 +16,15 @@ public:
     }
 
     void add(int num) {
-        for (auto& x: prods)
-        {
-            x *= num;
-        }
         prods.push_back(num);
     }
 
     int getProduct(int k) {
-        return prods[prods.size() - k];
+        int prod = 1;
+        for (int i = 0; i < k; i++) {
+            prod *= prods[prods.size() - 1 - i];
+        }
+        return prod;
     }
 private:
     vector<int> prods{};
