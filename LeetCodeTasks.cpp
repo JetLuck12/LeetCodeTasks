@@ -9,15 +9,50 @@
 
 using namespace std;
 
+int backtrack(map<char, int>& repeats)
+{
+    int res = repeats.size();
+	for (auto& [ch, rep] : repeats)
+	{
+		if (rep == 0)
+		{
+			continue;
+		}
+        auto new_reps = repeats;
+        new_reps[ch]--;
+        if (new_reps[ch] == 0)
+        {
+            new_reps.erase(ch);
+        }
+        res += backtrack(new_reps);
+	}
+    return res;
+}
+
 class Solution {
 public:
-
+    int numTilePossibilities(string tiles) {
+        int size = tiles.size();
+        map<char, int> repeats;
+        for (auto& x : tiles)
+        {
+	        if (repeats.contains(x))
+	        {
+                repeats[x]++;
+	        }
+            else
+            {
+                repeats[x] = 1;
+            }
+        }
+        int res = backtrack(repeats);
+        return res;
+    }
 };
 
 int main()
 {
     Solution sol;
-    std::string input{ "[[0,2,1,0],[4,0,0,3],[1,0,0,4],[0,3,2,0]]" };
-    std::vector<std::vector<int>> grid = Parser::process_vector_vector(input);
-    //long long res = sol.findMaxFish(grid);
+    std::string input{ "AAABBC" };
+    int res = sol.numTilePossibilities(input);
 }
