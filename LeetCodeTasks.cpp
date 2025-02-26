@@ -10,59 +10,40 @@
 
 using namespace std;
 
- struct TreeNode {
-    int val;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode* left, TreeNode* right) : val(x), left(left), right(right) {}
-    
-};
 class Solution {
 public:
-    TreeNode* recoverFromPreorder(string traversal) {
-        vector<TreeNode*> chain;
-        int dash_count = 0;
-        int temp_val = 0;
-        for (int i = 0; i < traversal.size(); i++) {
-            if (traversal[i] == '-') {
-                dash_count++;
+    int maxAbsoluteSum(vector<int>& nums) {
+        int pos = 0;
+        int neg = 0;
+        int res = 0;
+        for (auto& x : nums) {
+            if (pos < 0) {
+                pos = x;
             }
             else {
-                if (i != traversal.size() - 1 && traversal[i + 1] != '-') {
-                    temp_val = temp_val * 10 + int(traversal[i] - '0');
-                    continue;
-                }
-                if (chain.size() <= dash_count)
-                {
-                    chain.push_back(new TreeNode(temp_val * 10 + int(traversal[i] - '0')));
-                }
-                else
-                {
-                    chain[dash_count] = new TreeNode(temp_val * 10 + int(traversal[i] - '0'));
-                }
-                temp_val = 0;
-                if (dash_count == 0)
-                {
-                    continue;
-                }
-                if (chain[dash_count - 1]->left) {
-                    chain[dash_count - 1]->right = chain[dash_count];
-                }
-                else {
-                    chain[dash_count - 1]->left = chain[dash_count];
-                }
-                dash_count = 0;
+                pos += x;
+            }
+            if (neg > 0) {
+                neg = x;
+            }
+            else {
+                neg += x;
+            }
+            if (pos > res) {
+                res = pos;
+            }
+            if (-neg > res) {
+                res = -neg;
             }
         }
-        return chain[0];
+        return res;
     }
 };
 
 int main()
 {
     Solution sol;
-    std::string input{ "1-2--3--4-5--6--7" };
-    TreeNode* res = sol.recoverFromPreorder(input);
+    std::string input{ "[1,-3,2,3,-4]" };
+    std::vector<int> nums = Parser::process_vector(input);
+    int res = sol.maxAbsoluteSum(nums);
 }
