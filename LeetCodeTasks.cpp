@@ -3,6 +3,7 @@
 #include <map>
 #include <queue>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "parser.h"
@@ -10,59 +11,56 @@
 
 using namespace std;
 
- struct TreeNode {
-    int val;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode* left, TreeNode* right) : val(x), left(left), right(right) {}
-    
-};
 class Solution {
 public:
-    TreeNode* recoverFromPreorder(string traversal) {
-        vector<TreeNode*> chain;
-        int dash_count = 0;
-        int temp_val = 0;
-        for (int i = 0; i < traversal.size(); i++) {
-            if (traversal[i] == '-') {
-                dash_count++;
-            }
-            else {
-                if (i != traversal.size() - 1 && traversal[i + 1] != '-') {
-                    temp_val = temp_val * 10 + int(traversal[i] - '0');
-                    continue;
-                }
-                if (chain.size() <= dash_count)
+    int lenLongestFibSubseq(vector<int>& arr) {
+        int max = 0;
+        unordered_map<int, unordered_map<int, int>> fib_map;
+        fib_map[arr[0] + arr[1]] = { {arr[1], 2} };
+        for (int i = 2; i < arr.size()-max; i++) {
+            for (int j = 0; j < i; j++) {
+                if (arr[i] + arr[j] > arr.back())
                 {
-                    chain.push_back(new TreeNode(temp_val * 10 + int(traversal[i] - '0')));
+	                continue;
+                }
+                if (fib_map.contains(arr[i] + arr[j]))
+                {
+                    fib_map[arr[i] + arr[j]][arr[i]] = 2;
                 }
                 else
                 {
-                    chain[dash_count] = new TreeNode(temp_val * 10 + int(traversal[i] - '0'));
+                    fib_map[arr[i] + arr[j]] = { { arr[i],2} };
                 }
-                temp_val = 0;
-                if (dash_count == 0)
+                
+            }
+            if (fib_map.contains(arr[i])) {
+                auto item_map = fib_map[arr[i]];
+                for (auto pair : item_map)
                 {
-                    continue;
-                }
-                if (chain[dash_count - 1]->left) {
-                    chain[dash_count - 1]->right = chain[dash_count];
-                }
-                else {
-                    chain[dash_count - 1]->left = chain[dash_count];
-                }
-                dash_count = 0;
+                    if (fib_map.contains(arr[i] + pair.first))
+                    {
+                        fib_map[arr[i] + pair.first][arr[i]] = pair.second + 1;
+                    }
+                    else
+                    {
+                        fib_map[arr[i] + pair.first] = { { arr[i],pair.second + 1 } };
+                    }
+                    if (max <= pair.second)
+                    {
+                        max = pair.second + 1;
+                    }
+				}
+                fib_map.erase(arr[i]);
             }
         }
-        return chain[0];
+        return max;
     }
 };
 
 int main()
 {
     Solution sol;
-    std::string input{ "1-2--3--4-5--6--7" };
-    TreeNode* res = sol.recoverFromPreorder(input);
+    std::string input{ "[1,2,3,4,5,6,7,8]" };
+    std::vector<int> arr = Parser::process_vector(input);
+    int res = sol.lenLongestFibSubseq(arr);
 }
