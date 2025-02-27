@@ -14,46 +14,36 @@ using namespace std;
 class Solution {
 public:
     int lenLongestFibSubseq(vector<int>& arr) {
-        int max = 0;
-        unordered_map<int, unordered_map<int, int>> fib_map;
-        fib_map[arr[0] + arr[1]] = { {arr[1], 2} };
-        for (int i = 2; i < arr.size()-max; i++) {
-            for (int j = 0; j < i; j++) {
-                if (arr[i] + arr[j] > arr.back())
+        int max_seq = 0;
+        unordered_map<int, int> index;
+        for (int i = 0; i < arr.size(); i++)
+        {
+            index[arr[i]] = i;
+        }
+        for (int i = 0; i < arr.size(); i++)
+        {
+	        for (int j = i+1; j < arr.size(); j++)
+	        {
+                int temp = 2;
+                int prev_prev = arr[i];
+                int prev = arr[j];
+                while (true)
                 {
-	                continue;
-                }
-                if (fib_map.contains(arr[i] + arr[j]))
-                {
-                    fib_map[arr[i] + arr[j]][arr[i]] = 2;
-                }
-                else
-                {
-                    fib_map[arr[i] + arr[j]] = { { arr[i],2} };
-                }
-                
-            }
-            if (fib_map.contains(arr[i])) {
-                auto item_map = fib_map[arr[i]];
-                for (auto pair : item_map)
-                {
-                    if (fib_map.contains(arr[i] + pair.first))
-                    {
-                        fib_map[arr[i] + pair.first][arr[i]] = pair.second + 1;
-                    }
+	                if (index.contains(prev_prev+prev))
+	                {
+                        temp++;
+                        prev += prev_prev;
+                        prev_prev = prev - prev_prev;
+	                }
                     else
                     {
-                        fib_map[arr[i] + pair.first] = { { arr[i],pair.second + 1 } };
+                        max_seq = max(max_seq, temp);
+                        break;
                     }
-                    if (max <= pair.second)
-                    {
-                        max = pair.second + 1;
-                    }
-				}
-                fib_map.erase(arr[i]);
-            }
+                }
+	        }
         }
-        return max;
+        return max_seq >= 3 ? max_seq : 0;
     }
 };
 
