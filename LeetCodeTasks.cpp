@@ -10,59 +10,34 @@
 
 using namespace std;
 
- struct TreeNode {
-    int val;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode* left, TreeNode* right) : val(x), left(left), right(right) {}
-    
-};
 class Solution {
 public:
-    TreeNode* recoverFromPreorder(string traversal) {
-        vector<TreeNode*> chain;
-        int dash_count = 0;
-        int temp_val = 0;
-        for (int i = 0; i < traversal.size(); i++) {
-            if (traversal[i] == '-') {
-                dash_count++;
+    vector<int> pivotArray(vector<int>& nums, int pivot) {
+        vector<int> less;
+        vector<int> eq;
+        vector<int> more;
+        for (int i = 0; i < nums.size(); i++) {
+            if (nums[i] < pivot) {
+                less.push_back(nums[i]);
+            }
+            else if (nums[i] > pivot) {
+                more.push_back(nums[i]);
             }
             else {
-                if (i != traversal.size() - 1 && traversal[i + 1] != '-') {
-                    temp_val = temp_val * 10 + int(traversal[i] - '0');
-                    continue;
-                }
-                if (chain.size() <= dash_count)
-                {
-                    chain.push_back(new TreeNode(temp_val * 10 + int(traversal[i] - '0')));
-                }
-                else
-                {
-                    chain[dash_count] = new TreeNode(temp_val * 10 + int(traversal[i] - '0'));
-                }
-                temp_val = 0;
-                if (dash_count == 0)
-                {
-                    continue;
-                }
-                if (chain[dash_count - 1]->left) {
-                    chain[dash_count - 1]->right = chain[dash_count];
-                }
-                else {
-                    chain[dash_count - 1]->left = chain[dash_count];
-                }
-                dash_count = 0;
+                eq.push_back(nums[i]);
             }
         }
-        return chain[0];
+        less.insert(less.end(), eq.begin(), eq.end());
+        less.insert(less.end(), more.begin(), more.end());
+        return less;
     }
 };
 
 int main()
 {
     Solution sol;
-    std::string input{ "1-2--3--4-5--6--7" };
-    TreeNode* res = sol.recoverFromPreorder(input);
+    std::string input{ "[-3,4,3,2]" };
+    std::vector<int> nums = Parser::process_vector(input);
+    int pivot = 2;
+    vector<int> res = sol.pivotArray(nums, 2);
 }
