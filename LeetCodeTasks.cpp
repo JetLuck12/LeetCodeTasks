@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <queue>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -10,59 +11,67 @@
 
 using namespace std;
 
- struct TreeNode {
-    int val;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode* left, TreeNode* right) : val(x), left(left), right(right) {}
-    
-};
-class Solution {
-public:
-    TreeNode* recoverFromPreorder(string traversal) {
-        vector<TreeNode*> chain;
-        int dash_count = 0;
-        int temp_val = 0;
-        for (int i = 0; i < traversal.size(); i++) {
-            if (traversal[i] == '-') {
-                dash_count++;
-            }
-            else {
-                if (i != traversal.size() - 1 && traversal[i + 1] != '-') {
-                    temp_val = temp_val * 10 + int(traversal[i] - '0');
+bool cook_recipe(string& recipe, set<string>& chain, map<string, set<string>>& recs, set<string>& sups, set<string>& bad_recs) {
+    if (chain.contains(recipe)) {
+        return false;
+    }
+    chain.insert(recipe);
+    if (bad_recs.contains(recipe)) {
+        return false;
+    }
+    for (auto ingr : recs[recipe]) {
+        if (sups.contains(ingr)) {
+            continue;
+        }
+        else {
+            if (recs.contains(ingr)) {
+                if (cook_recipe(ingr, chain, recs, sups, bad_recs)) {
                     continue;
-                }
-                if (chain.size() <= dash_count)
-                {
-                    chain.push_back(new TreeNode(temp_val * 10 + int(traversal[i] - '0')));
-                }
-                else
-                {
-                    chain[dash_count] = new TreeNode(temp_val * 10 + int(traversal[i] - '0'));
-                }
-                temp_val = 0;
-                if (dash_count == 0)
-                {
-                    continue;
-                }
-                if (chain[dash_count - 1]->left) {
-                    chain[dash_count - 1]->right = chain[dash_count];
                 }
                 else {
-                    chain[dash_count - 1]->left = chain[dash_count];
+                    bad_recs.insert(recipe);
+                    return false;
                 }
-                dash_count = 0;
+            }
+            else {
+                bad_recs.insert(recipe);
+                return false;
             }
         }
-        return chain[0];
+    }
+    sups.insert(recipe);
+    return true;
+}
+
+class Solution {
+public:
+    vector<string> findAllRecipes(vector<string>& recipes, vector<vector<string>>& ingredients, vector<string>& supplies) {
+        set<string> sups;
+        for (auto sup : supplies) {
+            sups.insert(sup);
+        }
+        map<string, set<string>> recs;
+        for (int i = 0; i < recipes.size(); i++) {
+            recs[recipes[i]] = set<string>(ingredients[i].begin(), ingredients[i].end());
+        }
+        set<string> bad_recs;
+
+        vector<string> ans;
+        for (auto& rec : recipes) {
+            set<string> chain;
+            if (cook_recipe(rec, chain, recs, sups, bad_recs)) {
+                ans.push_back(rec);
+            }
+        }
+        return ans;
     }
 };
 
 int main()
 {
     Solution sol;
-    std::string input{ "1-2--3--4-5--6--7" };
-    TreeNode* res = sol.recoverFromPreorder(input);
+    vector<std::string> recs{ "bread" };
+    vector<vector<std::string>> ingr = { {"yeast", "flour"} };
+    vector<string> sups = { "yeast", "flour", "corn" };
+    vector<string> ans = sol.findAllRecipes(recs, ingr, sups);
 }
